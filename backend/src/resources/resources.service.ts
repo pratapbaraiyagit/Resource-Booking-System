@@ -14,8 +14,8 @@ export class ResourcesService {
     return this.resourcesRepository.find();
   }
 
-  create(name: string, description?: string): Promise<Resource> {
-    const resource = this.resourcesRepository.create({ name, description });
+  create(name: string, timezone: string): Promise<Resource> {
+    const resource = this.resourcesRepository.create({ name, timezone });
     return this.resourcesRepository.save(resource);
   }
 }

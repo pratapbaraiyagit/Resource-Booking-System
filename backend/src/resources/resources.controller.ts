@@ -11,7 +11,7 @@ export class ResourcesController {
   }
 
   @Post()
-  create(@Body() createResourceDto: { name: string; description?: string }) {
-    return this.resourcesService.create(createResourceDto.name, createResourceDto.description);
+  create(@Body() createResourceDto: { name: string; timezone: string }) {
+    return this.resourcesService.create(createResourceDto.name, createResourceDto.timezone);
   }
 }

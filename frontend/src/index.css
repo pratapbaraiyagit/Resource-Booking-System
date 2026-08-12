@@ -132,6 +132,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
+.slot-btn:disabled {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+}
+
 /* Primary Button */
 .btn-primary {
   width: 100%;
