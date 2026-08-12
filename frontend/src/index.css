@@ -89,6 +89,7 @@ select, input[type="date"] {
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   appearance: none;
+  box-sizing: border-box;
 }
 
 select:focus, input[type="date"]:focus {
