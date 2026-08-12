@@ -1,0 +1,16 @@
+{
+  "name": "resource-booking-system",
+  "version": "1.0.0",
+  "description": "Resource Booking System Technical Assessment",
+  "scripts": {
+    "start:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && npm run start:dev",
+    "start:db": "docker compose up -d",
+    "test:backend": "cd backend && npm run test",
+    "test:e2e": "cd backend && npm run test:e2e",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint"
+  },
+  "author": "",
+  "license": "ISC"
+}
