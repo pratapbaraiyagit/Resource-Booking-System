@@ -23,9 +23,9 @@ describe('Bookings API (e2e)', () => {
     
     if (resources.length > 0) {
       resourceId = resources[0].id;
-      // Fetch availability for a specific Monday to get valid UTC bounds
+      // Fetch availability for a specific Friday to get valid UTC bounds
       const availResponse = await request(app.getHttpServer())
-        .get(`/resources/${resourceId}/availability?date=2023-10-09&timezone=UTC`);
+        .get(`/resources/${resourceId}/availability?date=2023-10-13&timezone=UTC`);
       
       const slots = availResponse.body.slots;
       if (slots && slots.length >= 2) {
@@ -52,8 +52,8 @@ describe('Bookings API (e2e)', () => {
       .send({
         resourceId: '00000000-0000-0000-0000-000000000000',
         userId: 'demo',
-        startTime: '2023-10-09T09:00:00Z',
-        endTime: '2023-10-09T09:30:00Z',
+        startTime: '2023-10-13T09:00:00Z',
+        endTime: '2023-10-13T09:30:00Z',
       })
       .expect(404);
   });
@@ -65,8 +65,8 @@ describe('Bookings API (e2e)', () => {
       .send({
         resourceId,
         userId: 'demo',
-        startTime: '2023-10-09T09:00:00Z',
-        endTime: '2023-10-09T09:45:00Z',
+        startTime: '2023-10-13T09:00:00Z',
+        endTime: '2023-10-13T09:45:00Z',
       })
       .expect(400);
 
@@ -76,8 +76,8 @@ describe('Bookings API (e2e)', () => {
       .send({
         resourceId,
         userId: 'demo',
-        startTime: '2023-10-09T09:30:00Z',
-        endTime: '2023-10-09T09:00:00Z',
+        startTime: '2023-10-13T09:30:00Z',
+        endTime: '2023-10-13T09:00:00Z',
       })
       .expect(400);
   });
@@ -89,8 +89,8 @@ describe('Bookings API (e2e)', () => {
       .send({
         resourceId,
         userId: 'demo',
-        startTime: '2023-10-09T03:00:00.000Z',
-        endTime: '2023-10-09T03:30:00.000Z',
+        startTime: '2023-10-13T03:00:00.000Z',
+        endTime: '2023-10-13T03:30:00.000Z',
       })
       .expect(400);
   });
@@ -131,7 +131,7 @@ describe('Bookings API (e2e)', () => {
   it('5. Adjacent booking succeeds', async () => {
     // Fetch a fresh set of slots to get the second slot
     const availResponse = await request(app.getHttpServer())
-      .get(`/resources/${resourceId}/availability?date=2023-10-09&timezone=UTC`);
+      .get(`/resources/${resourceId}/availability?date=2023-10-13&timezone=UTC`);
     
     const secondSlot = availResponse.body.slots[1]; // The slot immediately after the first
 
