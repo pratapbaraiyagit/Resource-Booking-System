@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn } from 'typeorm';
 import { Availability } from '../availability/availability.entity';
 import { Booking } from '../bookings/booking.entity';
 
-@Entity()
+@Entity('resource')
 export class Resource {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -10,8 +10,11 @@ export class Resource {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  description: string;
+  @Column()
+  timezone: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
   @OneToMany(() => Availability, (availability) => availability.resource)
   availabilities: Availability[];

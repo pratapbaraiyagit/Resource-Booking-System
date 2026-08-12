@@ -1,27 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Exclusion } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Exclusion, CreateDateColumn } from 'typeorm';
 import { Resource } from '../resources/resource.entity';
 
-@Entity()
-@Exclusion(`no_overlapping_bookings`, `USING gist ("resourceId" WITH =, tstzrange("startTime", "endTime") WITH &&)`)
+@Entity('booking')
+@Exclusion(`no_overlapping_bookings`, `USING gist (resource_id WITH =, tstzrange(start_time, end_time, '[)') WITH &&)`)
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('uuid')
+  @Column('uuid', { name: 'resource_id' })
   resourceId: string;
 
   @ManyToOne(() => Resource, (resource) => resource.bookings, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'resourceId' })
+  @JoinColumn({ name: 'resource_id' })
   resource: Resource;
 
-  @Column('varchar')
+  @Column('varchar', { name: 'user_id' })
   userId: string;
 
-  @Column('timestamptz')
+  @Column('timestamptz', { name: 'start_time' })
   startTime: Date;
 
-  @Column('timestamptz')
+  @Column('timestamptz', { name: 'end_time' })
   endTime: Date;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
   @Column({ type: 'enum', enum: ['CONFIRMED', 'CANCELLED'], default: 'CONFIRMED' })
   status: string;

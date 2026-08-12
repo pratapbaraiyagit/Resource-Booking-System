@@ -1,25 +1,24 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Resource } from '../resources/resource.entity';
 
-@Entity()
+@Entity('availability')
 export class Availability {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('uuid')
+  @Column('uuid', { name: 'resource_id' })
   resourceId: string;
 
   @ManyToOne(() => Resource, (resource) => resource.availabilities, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'resourceId' })
+  @JoinColumn({ name: 'resource_id' })
   resource: Resource;
 
-  // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-  @Column('int')
+  @Column('int', { name: 'day_of_week' })
   dayOfWeek: number;
 
-  @Column('time')
-  startTime: string; // e.g. "09:00:00"
+  @Column('time', { name: 'start_local_time' })
+  startLocalTime: string;
 
-  @Column('time')
-  endTime: string; // e.g. "17:00:00"
+  @Column('time', { name: 'end_local_time' })
+  endLocalTime: string;
 }

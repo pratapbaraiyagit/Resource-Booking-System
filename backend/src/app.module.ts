@@ -25,7 +25,7 @@ import { Booking } from './bookings/booking.entity';
         password: configService.get<string>('POSTGRES_PASSWORD') || '',
         database: configService.get<string>('POSTGRES_DB') || 'rbs_db',
         entities: [Resource, Availability, Booking],
-        synchronize: true,
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),
