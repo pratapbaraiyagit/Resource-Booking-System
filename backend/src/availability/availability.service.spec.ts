@@ -2,12 +2,26 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AvailabilityService, AvailabilityRule } from './availability.service';
 import { parseISO, differenceInMinutes } from 'date-fns';
 
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Resource } from '../resources/resource.entity';
+import { Booking } from '../bookings/booking.entity';
+
 describe('AvailabilityService', () => {
   let service: AvailabilityService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AvailabilityService],
+      providers: [
+        AvailabilityService,
+        {
+          provide: getRepositoryToken(Resource),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(Booking),
+          useValue: {},
+        }
+      ],
     }).compile();
 
     service = module.get<AvailabilityService>(AvailabilityService);
@@ -99,18 +113,54 @@ describe('AvailabilityService', () => {
       });
     });
 
-    it('8. Correct UTC conversion to a different display timezone', () => {
-      // Resource is NY (Mon-Fri 09:00 - 17:00)
-      // Displaying in Europe/London
-      const slots = service.generateSlots('2023-10-09', 'America/New_York', 'Europe/London', [standardRule]);
+    it('3a. Europe/London spring-forward transition', () => {
+      // Spring forward in London is March 26, 2023 (Sunday). 01:00 skips to 02:00.
+      const springRule: AvailabilityRule = { dayOfWeek: 0, startLocalTime: '00:00', endLocalTime: '10:00' };
+      const slots = service.generateSlots('2023-03-26', 'Europe/London', 'Europe/London', [springRule]);
       
-      // On Oct 9, NY is EDT (-04:00). London is BST (+01:00). Difference is 5 hours.
-      // NY 09:00 EDT -> 13:00 UTC -> 14:00 BST in London.
-      expect(slots[0].startLocal).toBe('14:00');
-      expect(slots[15].endLocal).toBe('22:00');
+      expect(slots.length).toBe(18); // 9 hours elapsed in UTC
 
-      // The UTC time should strictly represent NY 09:00 EDT (13:00 UTC)
-      expect(slots[0].startUtc).toBe('2023-10-09T13:00:00.000Z');
+      // Verify the 00:30 slot ends at 02:00 local (since 01:00 doesn't exist)
+      const beforeTransition = slots.find(s => s.startLocal === '00:30');
+      expect(beforeTransition).toBeDefined();
+      expect(beforeTransition?.endLocal).toBe('02:00');
+
+      slots.forEach(slot => {
+        expect(slot.startLocal).not.toBe('01:00');
+        expect(slot.startLocal).not.toBe('01:30');
+      });
+    });
+
+    it('3b. Europe/London fall-back transition', () => {
+      // Fall back in London is October 29, 2023 (Sunday). 02:00 goes back to 01:00.
+      const fallRule: AvailabilityRule = { dayOfWeek: 0, startLocalTime: '00:00', endLocalTime: '10:00' };
+      const slots = service.generateSlots('2023-10-29', 'Europe/London', 'Europe/London', [fallRule]);
+      
+      expect(slots.length).toBe(22); // 11 hours elapsed in UTC
+
+      // All UTC starts must be unique (no duplicates)
+      const utcStarts = new Set(slots.map(s => s.startUtc));
+      expect(utcStarts.size).toBe(22);
+
+      slots.forEach(slot => {
+        const start = parseISO(slot.startUtc);
+        const end = parseISO(slot.endUtc);
+        expect(differenceInMinutes(end, start)).toBe(30);
+      });
+    });
+
+    it('8. Correct UTC conversion to a different display timezone (Asia/Kolkata viewing Europe/London)', () => {
+      // Resource is London (Mon-Fri 09:00 - 17:00)
+      // Displaying in Asia/Kolkata
+      // On Oct 9, 2023, London is BST (+01:00). Kolkata is always +05:30. Difference is 4 hours 30 mins.
+      // London 09:00 BST -> 08:00 UTC -> 13:30 IST in Kolkata.
+      const slots = service.generateSlots('2023-10-09', 'Europe/London', 'Asia/Kolkata', [standardRule]);
+      
+      expect(slots[0].startLocal).toBe('13:30');
+      expect(slots[15].endLocal).toBe('21:30');
+
+      // The UTC time should strictly represent London 09:00 BST (08:00 UTC)
+      expect(slots[0].startUtc).toBe('2023-10-09T08:00:00.000Z');
     });
   });
 });
